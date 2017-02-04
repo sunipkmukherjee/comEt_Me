@@ -66,7 +66,7 @@ WINDOW *init()
 	
 	last_x = x;
 	last_y = y;
-	
+	/*
 	// Bodies defined below
 	
 	body = calloc(BODIES, sizeof(float));
@@ -74,6 +74,26 @@ WINDOW *init()
 	while(i-- != 0)
 	{
 		body[i] = calloc(5, sizeof(float));
+		body[i][0] = (random()/(float)RAND_MAX * X_MAX) + X_MIN;	// X coordinates of the body
+		body[i][1] = (random()/(float)RAND_MAX * Y_MAX) + Y_MIN;	// Y coordinates of the body
+		body[i][2] = random()/(float)RAND_MAX * MASS;			// Mass of the body
+		body[i][3] = (body[i][2]/(float)MASS * RADIUS);			// Radius of the body
+		
+	}*/
+	// Bodies defined below
+	/* it is better to allocate the memory required for "bodies" in main(), as this is going to be used throughout the lifespan
+	of your program, and it will be easier to clean it up. You had initially calloc'ed the memory, but you never freed
+	it. Hence, your game has a memory leak and will eventually crash the system.
+	
+	But for this specific code, it is prudent to allocate memory for the bodies in the init() function as the window
+	dimensions are unknown before this call. But you have to remember to free the memory, which has been done in the
+	playGame() function right before it exits.
+	*/
+	body = ( float ** ) malloc ( BODIES * sizeof ( float * ) ) ; //remember datatypes
+	int i = BODIES + 1;
+	while(i-- != 0)
+	{
+		body[i] = (float * ) malloc (5 * sizeof ( float ) ); //contiguous allocation is good, but not really necessary
 		body[i][0] = (random()/(float)RAND_MAX * X_MAX) + X_MIN;	// X coordinates of the body
 		body[i][1] = (random()/(float)RAND_MAX * Y_MAX) + Y_MIN;	// Y coordinates of the body
 		body[i][2] = random()/(float)RAND_MAX * MASS;			// Mass of the body
@@ -315,6 +335,12 @@ int playGame()
 	clrtoeol();
 	refresh();
 	endwin();
+	//here the bodies will be freed, as it seems we do not need them any more when this function exits
+	i = BODIES + 1 ;
+	while ( i-- != 0 )
+		free ( body [ i ] ) ;
+	free ( body ) ;
+	
 	return 0;
 }
 int main()
